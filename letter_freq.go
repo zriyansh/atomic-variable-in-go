@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"sync/atomic"
 )
 
-var lock = sync.Mutex{}
+// var lock = sync.Mutex{}
 
 const allLetters = "abcdefghijklmnopqrstuvwxyz"
 
@@ -19,12 +20,12 @@ func countLetters(url string, frequency *[26]int32, wg *sync.WaitGroup) {
 	for _, b := range body {             // reads every byte of the body
 		c := strings.ToLower(string(b))
 		// we are only dealing with lowercase, and as 'b' is in byte, we convert it to string
-		lock.Lock()
+		// lock.Lock()
 		index := strings.Index(allLetters, c) // returns index (in allLetters) of c.
 		if index >= 0 {                       // to check if char is b/w a-z only, not special chars.
-			frequency[index] += 1
+			atomic.AddInt32(&frequency[index], 1)
 		}
-		lock.Unlock()
+		// lock.Unlock()
 	}
 	wg.Done()
 }
